@@ -188,8 +188,6 @@ const Widget003 = () => {
     return () => clearTimeout(timeout);
   }, [alertQueue, checking, setAlertQueue, setShowAlert, playAudio]);
 
-  useEffect(() => console.log(visibleDonor), [visibleDonor]);
-
   useEffect(() => {
     const alertsInterval = setInterval(checkForAlerts, 6000);
 
