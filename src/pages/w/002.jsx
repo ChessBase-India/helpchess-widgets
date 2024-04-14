@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import lottie from 'lottie-web';
-import animationData from '../../../public/animation.json';
+import animationData from '../../../public/animation2.json';
 
 const ParentBox = styled.div`
   width: 100vw;
@@ -16,7 +16,7 @@ const ParentBox = styled.div`
 
 const WidgetContainer = styled.div`
   width: 400px;
-  height: 116px;
+  height: 120px;
   background-color: #212121;
   position: relative;
 `;
@@ -110,10 +110,10 @@ const AlertOverlayBox = styled.div`
   justify-content: center;
   text-align: center;
   padding: 0.3rem;
-  background-color: #f6995c;
+  background-color: #95bdff;
   position: absolute;
   width: 100%;
-  height: ${({ alert }) => (alert ? `116px` : `0`)};
+  height: ${({ alert }) => (alert ? `120px` : `0`)};
   bottom: ${({ alert }) => (alert ? `0` : `-116px`)};
   left: 0;
   transition: all 1s ease-in-out;
@@ -184,12 +184,12 @@ const Widget003 = () => {
       setShowAlert(false);
       setChecking(false); // Ensure next check can occur
       setAlertQueue((prev) => prev.slice(1));
-    }, 9000);
+    }, 12000);
     return () => clearTimeout(timeout);
   }, [alertQueue, checking, setAlertQueue, setShowAlert, playAudio]);
 
   useEffect(() => {
-    const alertsInterval = setInterval(checkForAlerts, 6000);
+    const alertsInterval = setInterval(checkForAlerts, 2000);
 
     return () => {
       clearInterval(alertsInterval);
@@ -216,7 +216,7 @@ const Widget003 = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          'https://api-v2-stage.chessbase.in/v1/hc/widget-stats'
+          'https://api-v2.chessbase.in/v1/hc/widget-stats'
         );
         const data = await response.json();
         const { believersCount, bigBelieversCount } = data.data;
@@ -242,7 +242,7 @@ const Widget003 = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          'https://api-v2-stage.chessbase.in/v1/hc/donors'
+          'https://api-v2.chessbase.in/v1/hc/donors'
         );
         const data = await response.json();
         if (
