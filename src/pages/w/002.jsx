@@ -40,9 +40,9 @@ const BottomBar = styled.div`
   align-items: center;
   overflow: hidden;
   background-color: #ebc49f;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  letter-spacing: 1.2px;
+  letter-spacing: 0;
   color: #212121;
 `;
 
@@ -55,8 +55,8 @@ const StatsBox = styled.div`
   text-align: center;
   color: #7bd3ea;
   gap: 2rem;
-  font-size: 0.8rem;
-  letter-spacing: 1.5px;
+  font-size: 1.1rem;
+  letter-spacing: 0;
 
   .stat-box-child {
     display: flex;
@@ -69,14 +69,14 @@ const StatsBox = styled.div`
 const WebsiteLink = styled.p`
   color: #ebc49f;
   font-weight: bold;
-  font-size: 1.2rem;
-  letter-spacing: 1.2px;
+  font-size: 1.4rem;
+  letter-spacing: 1.1px;
 `;
 
 const StatNumbers = styled.p`
   font-weight: bold;
   font-size: 1.2rem;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.7px;
 `;
 
 const Button = styled.button`
@@ -147,7 +147,7 @@ const AnimationDiv = styled.div`
   inset: 0;
 `;
 
-const Widget003 = () => {
+const Widget002 = () => {
   const newDonationAudio =
     typeof window !== 'undefined'
       ? new Audio('/audio/new-donation.webm')
@@ -363,15 +363,15 @@ const Widget003 = () => {
         </AlertOverlayBox>
 
         <TopBar>
-          <WebsiteLink>www.helpchess.org</WebsiteLink>
+          <WebsiteLink>Helpchess.org</WebsiteLink>
           <StatsBox>
             <div className="stat-box-child">
               <StatNumbers>{counts.believers}</StatNumbers>
-              <p>BELIEVERS</p>
+              <p>Believers</p>
             </div>
             <div className="stat-box-child">
               <StatNumbers>{counts.bigBelievers}</StatNumbers>
-              <p>BIG BELIEVERS</p>
+              <p>Big Believers</p>
             </div>
           </StatsBox>
         </TopBar>
@@ -399,4 +399,4 @@ const Widget003 = () => {
   );
 };
 
-export default Widget003;
+export default Widget002;
