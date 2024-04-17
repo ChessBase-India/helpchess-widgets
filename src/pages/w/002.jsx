@@ -2,6 +2,8 @@ import styled from 'styled-components';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import lottie from 'lottie-web';
 import animationData from '../../../public/animation2.json';
+import moment from 'moment';
+import numeral from 'numeral';
 
 const ParentBox = styled.div`
   width: 100vw;
@@ -15,7 +17,7 @@ const ParentBox = styled.div`
 `;
 
 const WidgetContainer = styled.div`
-  width: 400px;
+  width: 420px;
   height: 120px;
   background-color: #212121;
   position: relative;
@@ -36,6 +38,7 @@ const BottomBar = styled.div`
   width: 100%;
   height: 40%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
@@ -44,6 +47,13 @@ const BottomBar = styled.div`
   font-weight: bold;
   letter-spacing: 0;
   color: #212121;
+  text-align: center;
+
+  .time {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-left: 0.7rem;
+  }
 `;
 
 const StatsBox = styled.div`
@@ -147,6 +157,8 @@ const AnimationDiv = styled.div`
   inset: 0;
 `;
 
+const nameCharLimit = 20;
+
 const Widget002 = () => {
   const newDonationAudio =
     typeof window !== 'undefined'
@@ -160,6 +172,7 @@ const Widget002 = () => {
     name: 'loading...',
     amount: 0,
     index: 0,
+    date: '',
   });
   const [updateRecentDonors, setUpdateRecentDonors] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
@@ -303,7 +316,11 @@ const Widget002 = () => {
     setUpdateRecentDonors(true);
     let newVisibleDonor = recentDonors[0];
     if (!newVisibleDonor) {
-      newVisibleDonor = { name: 'loading...', amount: 'loading...' };
+      newVisibleDonor = {
+        name: 'loading...',
+        amount: 'loading...',
+        date: '',
+      };
     }
     newVisibleDonor.index = 0;
     setVisibleDonor(newVisibleDonor);
@@ -376,7 +393,16 @@ const Widget002 = () => {
           </StatsBox>
         </TopBar>
         <BottomBar>
-          {visibleDonor.name + ' - ₹' + visibleDonor.amount}
+          <p>
+            {`${
+              visibleDonor.name.length > nameCharLimit
+                ? visibleDonor.name.slice(0, nameCharLimit) + '...'
+                : visibleDonor.name
+            } - ₹${numeral(visibleDonor.amount).format('0,0')}`}
+            <span className="time">
+              <em>{moment(visibleDonor.date).fromNow() || 'loading...'}</em>
+            </span>
+          </p>
         </BottomBar>
       </WidgetContainer>
 
