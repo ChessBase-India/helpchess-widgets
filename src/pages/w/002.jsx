@@ -23,6 +23,32 @@ const WidgetContainer = styled.div`
   position: relative;
 `;
 
+const WarningText = styled.p`
+  background-color: #fffaa0;
+  color: #212121;
+  padding: 0.5rem;
+  border-radius: 10px;
+  text-align: center;
+`;
+
+const SyncStatus = styled.p`
+  background-color: ${({ syncing }) => (syncing ? '#DAF7A6 ' : '#FAA0A0')};
+  color: #212121;
+  padding: 0.5rem;
+  border-radius: 10px;
+  text-align: center;
+`;
+
+const VisibleDonorIndex = styled.p`
+  padding: 0.5rem;
+  border-radius: 10px;
+  background-color: #7bd3ea;
+  color: #212121;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1.1px;
+`;
+
 const TopBar = styled.div`
   width: 100%;
   height: fit-content;
@@ -329,10 +355,7 @@ const Widget002 = () => {
   const handlePrevDonor = () => {
     setVisibleDonor((currDonor) => {
       if (currDonor.index + 1 === recentDonors.length) {
-        setUpdateRecentDonors(true);
-        const newVisibleDonor = recentDonors[0];
-        newVisibleDonor.index = 0;
-        return newVisibleDonor;
+        return;
       }
       setUpdateRecentDonors(false);
       const newVisibleDonor = recentDonors[currDonor.index + 1];
@@ -343,7 +366,7 @@ const Widget002 = () => {
 
   const handleNextDonor = () => {
     setVisibleDonor((currDonor) => {
-      if (currDonor.index - 1 < 0) {
+      if (currDonor.index - 1 === 0) {
         setUpdateRecentDonors(true);
         const newVisibleDonor = recentDonors[0];
         newVisibleDonor.index = 0;
@@ -408,19 +431,38 @@ const Widget002 = () => {
 
       <ButtonBox>
         <Button onClick={handleResetDonor}>Reset</Button>
-        <Button onClick={handlePrevDonor}>Next</Button>
         <Button onClick={handleNextDonor} disabled={visibleDonor.index === 0}>
-          Previous
+          &#8592;
+        </Button>
+        <Button
+          onClick={handlePrevDonor}
+          disabled={visibleDonor.index === recentDonors.length - 1}
+        >
+          &#8594;
         </Button>
         <Button onClick={() => setPlayAudio((curr) => !curr)}>
           {playAudio ? 'Disable Audio' : 'Enable Audio'}
         </Button>
+        <VisibleDonorIndex>
+          {visibleDonor.index + 1}/{recentDonors.length}
+        </VisibleDonorIndex>
       </ButtonBox>
-      <p>
+      <SyncStatus syncing={updateRecentDonors}>
+        {updateRecentDonors ? (
+          <span>&#10003; Actively Syncing Donors</span>
+        ) : (
+          <span>&#10005; Not Syncing - Click reset to enable sync</span>
+        )}
+      </SyncStatus>
+      <WarningText>
         <strong>
           Make sure to <em>RESET</em> after clicking any button.
         </strong>
-      </p>
+        <p>
+          Note: No new recent donors will be fetched if we are not at the latest
+          donor. This is intentional.
+        </p>
+      </WarningText>
     </ParentBox>
   );
 };
