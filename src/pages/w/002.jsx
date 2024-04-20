@@ -17,7 +17,7 @@ const ParentBox = styled.div`
 `;
 
 const WidgetContainer = styled.div`
-  width: 420px;
+  width: 462px;
   height: 120px;
   background-color: #212121;
   position: relative;
@@ -32,7 +32,7 @@ const WarningText = styled.p`
 `;
 
 const SyncStatus = styled.p`
-  background-color: ${({ syncing }) => (syncing ? '#DAF7A6 ' : '#FAA0A0')};
+  background-color: ${({ $syncing }) => ($syncing ? '#DAF7A6 ' : '#FAA0A0')};
   color: #212121;
   padding: 0.5rem;
   border-radius: 10px;
@@ -69,7 +69,7 @@ const BottomBar = styled.div`
   align-items: center;
   overflow: hidden;
   background-color: #ebc49f;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
   letter-spacing: 0;
   color: #212121;
@@ -149,11 +149,11 @@ const AlertOverlayBox = styled.div`
   background-color: #95bdff;
   position: absolute;
   width: 100%;
-  height: ${({ alert }) => (alert ? `120px` : `0`)};
-  bottom: ${({ alert }) => (alert ? `0` : `-116px`)};
+  height: ${({ $alert }) => ($alert ? `120px` : `0`)};
+  bottom: ${({ $alert }) => ($alert ? `0` : `-116px`)};
   left: 0;
   transition: all 1s ease-in-out;
-  opacity: ${({ alert }) => (alert ? `1` : `0`)};
+  opacity: ${({ $alert }) => ($alert ? `1` : `0`)};
 
   .title {
     font-size: 1.1rem;
@@ -391,7 +391,7 @@ const Widget002 = () => {
   return (
     <ParentBox>
       <WidgetContainer>
-        <AlertOverlayBox alert={showAlert}>
+        <AlertOverlayBox $alert={showAlert}>
           <p className="title">{alertQueue[0] ? alertQueue[0].name : ''}</p>
           <p className="amount">{`₹${
             alertQueue[0] ? alertQueue[0].amount : ''
@@ -447,7 +447,7 @@ const Widget002 = () => {
           {visibleDonor.index + 1}/{recentDonors.length}
         </VisibleDonorIndex>
       </ButtonBox>
-      <SyncStatus syncing={updateRecentDonors}>
+      <SyncStatus $syncing={updateRecentDonors}>
         {updateRecentDonors ? (
           <span>&#10003; Actively Syncing Donors</span>
         ) : (
@@ -458,10 +458,9 @@ const Widget002 = () => {
         <strong>
           Make sure to <em>RESET</em> after clicking any button.
         </strong>
-        <p>
-          Note: No new recent donors will be fetched if we are not at the latest
-          donor. This is intentional.
-        </p>
+        <br />
+        Note: No new recent donors will be fetched if we are not at the latest
+        donor. This is intentional.
       </WarningText>
     </ParentBox>
   );
