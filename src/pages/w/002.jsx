@@ -186,10 +186,11 @@ const AnimationDiv = styled.div`
 const nameCharLimit = 20;
 
 const Widget002 = () => {
-  const newDonationAudio =
-    typeof window !== 'undefined'
+  const newDonationAudio = useCallback(() => {
+    return typeof window !== 'undefined'
       ? new Audio('/audio/new-donation.webm')
       : null;
+  }, []);
 
   const [counts, setCounts] = useState({ believers: 0, bigBelievers: 0 });
   const [recentDonors, setRecentDonors] = useState([]);
@@ -216,7 +217,8 @@ const Widget002 = () => {
     setShowAlert(true);
 
     if (playAudio) {
-      newDonationAudio.play();
+      const alertAudio = newDonationAudio();
+      alertAudio.play();
     }
 
     const timeout = setTimeout(() => {
@@ -269,13 +271,7 @@ const Widget002 = () => {
     };
 
     fetchData();
-
-    const interval = setInterval(() => {
-      fetchData();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
+  }, [alertQueue]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -440,12 +436,12 @@ const Widget002 = () => {
         >
           &#8594;
         </Button>
-        <Button onClick={() => setPlayAudio((curr) => !curr)}>
-          {playAudio ? 'Disable Audio' : 'Enable Audio'}
-        </Button>
         <VisibleDonorIndex>
           {visibleDonor.index + 1}/{recentDonors.length}
         </VisibleDonorIndex>
+        <Button onClick={() => setPlayAudio((curr) => !curr)}>
+          {playAudio ? 'Disable Audio' : 'Enable Audio'}
+        </Button>
       </ButtonBox>
       <SyncStatus $syncing={updateRecentDonors}>
         {updateRecentDonors ? (
