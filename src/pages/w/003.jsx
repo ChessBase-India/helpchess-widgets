@@ -75,15 +75,9 @@ const BottomBar = styled.div`
   color: #212121;
   text-align: center;
 
-  .donated {
+  .text {
     font-size: 1.1rem;
     font-weight: 600;
-  }
-
-  .time {
-    font-size: 0.8rem;
-    font-weight: 600;
-    margin-left: 0.7rem;
   }
 `;
 
@@ -422,12 +416,10 @@ const Widget002 = () => {
               ? visibleDonor.name.slice(0, nameCharLimit) + '...'
               : visibleDonor.name}
           </p>
-          <p className="donated">donated</p>
-          <p>
-            ₹{numeral(visibleDonor.amount).format('0,0')}
-            <span className="time">
-              <em>{moment(visibleDonor.date).fromNow() || 'loading...'}</em>
-            </span>
+          <p className="text">donated</p>
+          <p>₹{numeral(visibleDonor.amount).format('0,0')}</p>
+          <p className="text">
+            {moment(visibleDonor.date).fromNow() || 'loading...'}
           </p>
         </BottomBar>
       </WidgetContainer>
