@@ -72,11 +72,13 @@ const BottomBar = styled.div`
   letter-spacing: 0;
   color: #212121;
   text-align: center;
+  text-transform: uppercase;
 
   .time {
     font-size: 0.8rem;
     font-weight: 600;
     margin-left: 0.7rem;
+    text-transform: lowercase;
   }
 `;
 
