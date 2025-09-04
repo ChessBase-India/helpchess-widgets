@@ -659,7 +659,7 @@ const Dashboard = () => {
     if (newDonors.length > 0) {
       checkForNewDonors(newDonors);
     }
-  }, [recentDonors, checkForNewDonors]);
+  }, [recentDonors, checkForNewDonors, previousDonors]);
 
   const formatAmount = (amount) => {
     return `₹${numeral(amount).format('0,0')}`;
@@ -732,7 +732,7 @@ const Dashboard = () => {
           <WebsiteHeader>
             <p className="website-link">www.HelpChess.org</p>
             <p className="mission-text">
-              Join India's largest chess charity in our mission of supporting 1000 chess players and be a part of Indian Chess history.
+              Join India&apos;s largest chess charity in our mission of supporting 1000 chess players and be a part of Indian Chess history.
             </p>
           </WebsiteHeader>
 
