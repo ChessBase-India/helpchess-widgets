@@ -6,6 +6,10 @@ import moment from 'moment';
 import numeral from 'numeral';
 
 const ParentBox = styled.div`
+  --top-bar-height: 83px;
+  --bottom-bar-height: 48px;
+  --color-primary-highlight: #0cc0df;;
+  
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -18,9 +22,14 @@ const ParentBox = styled.div`
 
 const WidgetContainer = styled.div`
   width: 470px;
-  height: 120px;
+  height: calc(var(--top-bar-height) + var(--bottom-bar-height));
   background-color: #212121;
   position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const WarningText = styled.p`
@@ -62,13 +71,13 @@ const TopBar = styled.div`
 
 const BottomBar = styled.div`
   width: 100%;
-  height: 40%;
+  height: var(--bottom-bar-height);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background-color: #0cc0df;
+  background-color: var(--color-primary-highlight);
   font-size: 1.3em;
   font-weight: bold;
   letter-spacing: 0;
@@ -81,6 +90,7 @@ const BottomBar = styled.div`
     font-weight: 600;
     margin-left: 0.7rem;
     text-transform: lowercase;
+    color: rgb(59, 59, 59);
   }
 `;
 
@@ -91,7 +101,7 @@ const StatsBox = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: #7bd3ea;
+  color:rgb(183, 183, 183);
   gap: 2rem;
   font-size: 1rem;
   letter-spacing: 0;
@@ -135,18 +145,19 @@ const StatNumbers = styled.p`
   font-weight: bold;
   font-size: 1.6rem;
   letter-spacing: 0.7px;
+  color: var(--color-primary-highlight);
 `;
 
 const Button = styled.button`
   padding: 0.5rem;
   border-radius: 10px;
-  background-color: #212121;
-  color: #ebc49f;
+  background-color: ${({ $isTest }) => ($isTest ? '#dc2626' : '#212121')};
+  color: ${({ $isTest }) => ($isTest ? '#ffffff' : '#ebc49f')};
   cursor: pointer;
 
   &:hover {
-    background-color: #ebc49f;
-    color: #212121;
+    background-color: ${({ $isTest }) => ($isTest ? '#ef4444' : '#ebc49f')};
+    color: ${({ $isTest }) => ($isTest ? '#ffffff' : '#212121')};
   }
 
   &:disabled {
@@ -161,6 +172,8 @@ const ButtonBox = styled.div`
 `;
 
 const AlertOverlayBox = styled.div`
+  --height: calc(var(--top-bar-height) + var(--bottom-bar-height));
+
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
@@ -168,41 +181,49 @@ const AlertOverlayBox = styled.div`
   justify-content: center;
   text-align: center;
   padding: 0.3rem;
-  background-color: #95bdff;
+  background: rgba(20, 20, 20, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   position: absolute;
   width: 100%;
-  height: ${({ $alert }) => ($alert ? `120px` : `0`)};
-  bottom: ${({ $alert }) => ($alert ? `0` : `-116px`)};
+  height: var(--height);
+  bottom: ${({ $alert }) => ($alert ? `0` : `calc( (var(--height) * -1 ) - 10px)`)};
   left: 0;
   transition: all 1s ease-in-out;
-  opacity: ${({ $alert }) => ($alert ? `1` : `0`)};
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  overflow: hidden;
 
   .title {
-    font-size: 1.1rem;
+    font-size: 1.4rem;
     font-weight: bold;
     letter-spacing: 1.5px;
-    color: #212121;
+    color: var(--color-primary-highlight);
     text-transform: uppercase;
+    text-shadow:  2px 4px rgba(0, 0, 0, 0.5);
   }
 
   .amount {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 800;
     letter-spacing: 1.5px;
-    color: #212121;
+    color: var(--color-primary-highlight);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
 
   .subtext {
-    color: #212121;
-    font-size: 0.8rem;
+    color: #ffffff;
+    font-size: 1rem;
     font-weight: 400;
     letter-spacing: 1.2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
 `;
 
 const AnimationDiv = styled.div`
   position: absolute;
   inset: 0;
+  transform: scale(2);
 `;
 
 const nameCharLimit = 20;
@@ -417,6 +438,15 @@ const Widget002 = () => {
     });
   };
 
+  const handleTestAlert = () => {
+    const testDonor = {
+      name: 'Test Donor',
+      amount: 1000,
+      id: 'test-' + Date.now()
+    };
+    setAlertQueue(prev => [...prev, testDonor]);
+  };
+
   return (
     <ParentBox>
       <WidgetContainer>
@@ -479,6 +509,7 @@ const Widget002 = () => {
         <VisibleDonorIndex>
           {visibleDonor.index + 1}/{recentDonors.length}
         </VisibleDonorIndex>
+        <Button onClick={handleTestAlert} $isTest={true}>Test Alert</Button>
         <Button onClick={() => setPlayAudio((curr) => !curr)}>
           {playAudio ? 'Disable Audio' : 'Enable Audio'}
         </Button>
