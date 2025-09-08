@@ -8,7 +8,7 @@ import numeral from 'numeral';
 const ParentBox = styled.div`
   --top-bar-height: 83px;
   --bottom-bar-height: 48px;
-  --color-primary-highlight: #0cc0df;;
+  --color-primary-highlight: #ff914d;;
   
   width: 100vw;
   height: 100vh;
@@ -77,7 +77,7 @@ const BottomBar = styled.div`
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background-color: var(--color-primary-highlight);
+  background: linear-gradient(to right, #ffde59, #ff914d);
   font-size: 1.3em;
   font-weight: bold;
   letter-spacing: 0;
@@ -101,7 +101,7 @@ const StatsBox = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color:rgb(183, 183, 183);
+  color: #0cc0df;
   gap: 2rem;
   font-size: 1rem;
   letter-spacing: 0;
@@ -226,7 +226,7 @@ const AnimationDiv = styled.div`
   transform: scale(2);
 `;
 
-const nameCharLimit = 20;
+const nameCharLimit = 18;
 
 const Widget002 = () => {
   const newDonationAudio = useCallback(() => {
