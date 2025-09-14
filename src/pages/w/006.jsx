@@ -204,7 +204,7 @@ const NotificationOverlay = styled.div`
   .amount,
   .subtext,
   .label,
-  .name {
+  > div {
     animation: ${fadeIn} 1s ease-in-out;
   }
 
