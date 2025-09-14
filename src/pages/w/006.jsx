@@ -319,7 +319,7 @@ const useNotificationQueue = (playAudio) => {
 
 const TOP_DONOR_VIEW_INTERVAL = 1200000;
 const TOP_DONOR_DISPLAY_DURATION = 8000;
-const NEW_DONOR_DISPLAY_DURATION = 15000;
+const NEW_DONOR_DISPLAY_DURATION = 10000;
 const nameCharLimit = 18;
 
 const Widget006 = () => {
