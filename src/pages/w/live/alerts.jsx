@@ -178,7 +178,7 @@ const Alerts = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          'https://api-v2.chessbase.in/v1/hc/donors'
+          "https://api-v2.chessbase.in/v1/hc/donors"
         );
         const data = await response.json();
         if (

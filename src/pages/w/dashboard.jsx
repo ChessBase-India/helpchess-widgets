@@ -590,13 +590,15 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('https://api-v2.chessbase.in/v2/hc/widget-stats');
+        const response = await fetch(
+          "https://api-v2.chessbase.in/v2/hc/widget-stats"
+        );
         const data = await response.json();
         if (data.ok && data.data) {
           setStats(data.data);
         }
       } catch (error) {
-        console.error('Error fetching stats:', error);
+        console.error("Error fetching stats:", error);
       }
     };
 
@@ -609,17 +611,22 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDonors = async () => {
       try {
-        const response = await fetch('https://api-v2.chessbase.in/v1/hc/donors');
+        const response = await fetch(
+          "https://api-v2.chessbase.in/v1/hc/donors"
+        );
         const data = await response.json();
-        console.log('Donors API response:', data); // Debug log
+        console.log("Donors API response:", data); // Debug log
         if (data.ok && data.data && data.data.recentDonors) {
-          console.log('Setting recent donors:', data.data.recentDonors.slice(0, 8)); // Debug log
+          console.log(
+            "Setting recent donors:",
+            data.data.recentDonors.slice(0, 8)
+          ); // Debug log
           setRecentDonors(data.data.recentDonors.slice(0, 8));
         } else {
-          console.log('No recent donors found in response:', data); // Debug log
+          console.log("No recent donors found in response:", data); // Debug log
         }
       } catch (error) {
-        console.error('Error fetching donors:', error);
+        console.error("Error fetching donors:", error);
       }
     };
 
