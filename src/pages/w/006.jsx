@@ -174,29 +174,39 @@ const ButtonBox = styled.div`
   gap: 0.5rem;
 `;
 
-const AlertOverlayBox = styled.div`
-  --height: calc(var(--top-bar-height) + var(--bottom-bar-height));
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to { opacity: 1; }
+`;
 
+const NotificationOverlay = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
+  flex-direction: row;
+  gap: 0.5rem;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: 0.3rem;
-  background: rgba(20, 20, 20, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   position: absolute;
   width: 100%;
-  height: var(--height);
-  bottom: ${({ $alert }) =>
-    $alert ? `0` : `calc( (var(--height) * -1 ) - 10px)`};
+  height: 100%;
+  bottom: 0;
   left: 0;
-  transition: all 1s ease-in-out;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  z-index: 10;
-  overflow: hidden;
+  transition: opacity 0.8s ease-in-out;
+  z-index: 20;
+  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
+  pointer-events: ${({ $visible }) => ($visible ? "auto" : "none")};
+
+  .title,
+  .amount,
+  .subtext,
+  .label,
+  .name {
+    animation: ${fadeIn} 1s ease-in-out;
+  }
 
   .title {
     font-size: 1.4rem;
@@ -222,45 +232,6 @@ const AlertOverlayBox = styled.div`
     letter-spacing: 1.2px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   }
-`;
-
-const AnimationDiv = styled.div`
-  position: absolute;
-  inset: 0;
-  transform: scale(2);
-`;
-
-const fadeIn = keyframes`
-  from { opacity: 0; }
-  to { opacity: 1; }
-`;
-
-const TopDonorOverlay = styled.div`
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0.3rem;
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  bottom: 0;
-  left: 0;
-  transition: opacity 0.8s ease-in-out;
-  z-index: 20;
-  opacity: ${({ $visible }) => ($visible ? 1 : 0)};
-  pointer-events: ${({ $visible }) => ($visible ? "auto" : "none")};
-
-  .label,
-  .name,
-  .amount {
-    animation: ${fadeIn} 1s ease-in-out;
-  }
 
   .label {
     font-size: 1.5rem;
@@ -278,31 +249,80 @@ const TopDonorOverlay = styled.div`
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
 
-  .amount {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #ff914d;
+  .new-donor-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
   }
 
   .animation-container {
+    position: absolute;
+    inset: 0;
+    transform: scale(2);
+    z-index: -1;
+  }
+
+  .winner-animation-container {
     max-width: 30%;
   }
 `;
 
-// --- WIDGET COMPONENT ---
+// --- CUSTOM HOOK for managing notification queue (Corrected Logic) ---
+const useNotificationQueue = (playAudio) => {
+  const [notificationQueue, setNotificationQueue] = useState([]);
+  const [currentNotification, setCurrentNotification] = useState(null);
+  const newDonationAudio = useCallback(
+    () =>
+      typeof window !== "undefined"
+        ? new Audio("/audio/new-donation.webm")
+        : null,
+    []
+  );
 
-// Constants for controlling the top donor view
-const TOP_DONOR_VIEW_INTERVAL = 30000; // Show top donors every 30 seconds
-const TOP_DONOR_DISPLAY_DURATION = 4000; // Show each top donor for 5 seconds
+  // Effect 1: The Queue Processor.
+  // This effect's job is to pull the next notification from the queue when ready.
+  useEffect(() => {
+    if (!currentNotification && notificationQueue.length > 0) {
+      const nextNotification = notificationQueue[0];
+      setCurrentNotification(nextNotification);
+
+      if (playAudio && nextNotification.type === "newDonor") {
+        const audio = newDonationAudio();
+        audio.play();
+      }
+    }
+  }, [notificationQueue, currentNotification, playAudio, newDonationAudio]);
+
+  // Effect 2: The Display Timer.
+  // This effect's job is to clear the notification after its duration has passed.
+  useEffect(() => {
+    if (currentNotification) {
+      const timeout = setTimeout(() => {
+        setCurrentNotification(null); // Hide the notification
+        setNotificationQueue((prev) => prev.slice(1)); // Remove it from the queue
+      }, currentNotification.duration);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [currentNotification]);
+
+  const addNotification = useCallback((notification) => {
+    setNotificationQueue((prev) => [...prev, notification]);
+  }, []);
+
+  const addNotifications = useCallback((notifications) => {
+    setNotificationQueue((prev) => [...prev, ...notifications]);
+  }, []);
+
+  return { currentNotification, addNotification, addNotifications };
+};
+
+const TOP_DONOR_VIEW_INTERVAL = 60000;
+const TOP_DONOR_DISPLAY_DURATION = 4000;
+const NEW_DONOR_DISPLAY_DURATION = 10000;
 const nameCharLimit = 18;
 
 const Widget006 = () => {
-  const newDonationAudio = useCallback(() => {
-    return typeof window !== "undefined"
-      ? new Audio("/audio/new-donation.webm")
-      : null;
-  }, []);
-
   const [counts, setCounts] = useState({ believers: 0, bigBelievers: 0 });
   const [recentDonors, setRecentDonors] = useState([]);
   const [previousDonors, setPreviousDonors] = useState([]);
@@ -313,138 +333,92 @@ const Widget006 = () => {
     date: "",
   });
   const [updateRecentDonors, setUpdateRecentDonors] = useState(true);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertQueue, setAlertQueue] = useState([]);
-  const [checking, setChecking] = useState(false);
   const [playAudio, setPlayAudio] = useState(true);
   const [showLogo, setShowLogo] = useState(true);
 
-  // State for managing the top donor takeover view
-  const [isTopDonorViewActive, setIsTopDonorViewActive] = useState(false);
-  const [currentTopDonor, setCurrentTopDonor] = useState(null);
+  const { currentNotification, addNotification, addNotifications } =
+    useNotificationQueue(playAudio);
 
-  const animationContainer = useRef(null);
-  const winnerAnimationContainer = useRef(null);
-
-  const checkForAlerts = useCallback(() => {
-    // Don't show alerts during top donor view
-    if (!alertQueue.length || checking || isTopDonorViewActive) {
-      return;
-    }
-    setChecking(true);
-    setShowAlert(true);
-
-    if (playAudio) {
-      const alertAudio = newDonationAudio();
-      alertAudio.play();
-    }
-
-    const timeout = setTimeout(() => {
-      setShowAlert(false);
-      setChecking(false);
-      setAlertQueue((prev) => prev.slice(1));
-    }, 12000);
-    return () => clearTimeout(timeout);
-  }, [alertQueue, checking, playAudio, isTopDonorViewActive, newDonationAudio]);
+  const newDonorAnimationContainer = useRef(null);
+  const topDonorAnimationContainer = useRef(null);
 
   useEffect(() => {
-    const alertsInterval = setInterval(checkForAlerts, 2000);
-    return () => clearInterval(alertsInterval);
-  }, [checkForAlerts]);
+    if (
+      currentNotification?.type === "newDonor" &&
+      newDonorAnimationContainer.current
+    ) {
+      const anim = lottie.loadAnimation({
+        container: newDonorAnimationContainer.current,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        animationData,
+      });
+      return () => anim.destroy();
+    }
+  }, [currentNotification]);
 
-  // This effect hook manages the entire top donor takeover flow
-  const topDonorTimeoutRef = useRef(null);
+  useEffect(() => {
+    if (
+      currentNotification?.type === "topDonor" &&
+      topDonorAnimationContainer.current
+    ) {
+      const winnerAnim = lottie.loadAnimation({
+        container: topDonorAnimationContainer.current,
+        renderer: "svg",
+        loop: true,
+        autoplay: true,
+        animationData: winnerAnimation,
+      });
+      winnerAnim.setSpeed(0.5);
+      return () => winnerAnim.destroy();
+    }
+  }, [currentNotification]);
 
-  // 1. DEFINE THE ACTION: Create a memoized, stable function for the entire cycle.
-  //    useCallback ensures this function is not recreated on every render.
-  const cycleTopDonors = useCallback(async () => {
+  const fetchAndQueueTopDonors = useCallback(async () => {
     try {
-      // Fetch the latest top donor data
       const response = await fetch(
         "https://api-v2.chessbase.in/v2/hc/widget-stats"
       );
       const result = await response.json();
+      if (!result.ok || !result.data?.topDonors) return;
 
-      if (!result.ok || !result.data || !result.data.topDonors) {
-        return; // Exit early if data is invalid
-      }
-
-      // Prepare a clean list of top donors to show, filtering out nulls
       const { topDonors } = result.data;
       const topDonorsToShow = [
-        { ...topDonors.allTime, label: "All-Time Top" },
-        { ...topDonors.monthly, label: "Monthly Top" },
         { ...topDonors.today, label: "Today's Top" },
-      ].filter((donor) => donor && donor.name);
+        { ...topDonors.weekly, label: "Weekly Top" },
+        { ...topDonors.monthly, label: "Monthly Top" },
+      ]
+        .filter((donor) => donor && donor.name)
+        .map((donor) => ({
+          type: "topDonor",
+          duration: TOP_DONOR_DISPLAY_DURATION,
+          data: donor,
+        }));
 
-      if (topDonorsToShow.length === 0) {
-        return; // Exit if there are no valid top donors to show
-      }
-
-      // Activate the takeover view
-      setIsTopDonorViewActive(true);
-      setUpdateRecentDonors(false);
-
-      // Loop through the donors, showing each one for a set duration
-      for (const donor of topDonorsToShow) {
-        setCurrentTopDonor(donor);
-        await new Promise((resolve) =>
-          setTimeout(resolve, TOP_DONOR_DISPLAY_DURATION)
-        );
+      if (topDonorsToShow.length > 0) {
+        addNotifications(topDonorsToShow);
       }
     } catch (error) {
-      console.error("Failed to cycle top donors:", error);
-    } finally {
-      // Deactivate the view and resume normal operations
-      setIsTopDonorViewActive(false);
-      setCurrentTopDonor(null);
-      setUpdateRecentDonors(true);
-
-      // Schedule the NEXT run. This is the key to the polling loop.
-      topDonorTimeoutRef.current = setTimeout(
-        cycleTopDonors,
-        TOP_DONOR_VIEW_INTERVAL
-      );
+      console.error("Failed to fetch and queue top donors:", error);
     }
-  }, []); // Empty dependency array: this function is created once and never changes.
-  // All setters from useState are guaranteed to be stable.
+  }, [addNotifications]);
 
-  // 2. MANAGE THE LIFECYCLE: This useEffect's only job is to start and stop the cycle.
   useEffect(() => {
-    // Start the first cycle when the component mounts.
-    cycleTopDonors();
+    const timeoutRef = { current: null };
 
-    // Return a cleanup function.
-    // This will run ONLY when the component unmounts.
-    return () => {
-      // If the component is unmounted, we MUST clear any pending timeout.
-      // This is the most critical part for preventing memory leaks.
-      clearTimeout(topDonorTimeoutRef.current);
+    const scheduleNextTopDonorFetch = () => {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        fetchAndQueueTopDonors();
+        scheduleNextTopDonorFetch();
+      }, TOP_DONOR_VIEW_INTERVAL);
     };
-  }, [cycleTopDonors]); // The effect depends on our stable callback.
 
-  useEffect(() => {
-    const anim = lottie.loadAnimation({
-      container: animationContainer.current,
-      renderer: "svg",
-      loop: true,
-      autoplay: true,
-      animationData,
-    });
-    return () => anim.destroy();
-  }, []);
+    scheduleNextTopDonorFetch();
 
-  useEffect(() => {
-    const winnerAnim = lottie.loadAnimation({
-      container: winnerAnimationContainer.current,
-      renderer: "svg",
-      loop: true,
-      autoplay: true,
-      animationData: winnerAnimation,
-    });
-    winnerAnim.setSpeed(0.5);
-    return () => winnerAnim.destroy();
-  }, [isTopDonorViewActive]);
+    return () => clearTimeout(timeoutRef.current);
+  }, [fetchAndQueueTopDonors]);
 
   useEffect(() => {
     const animationInterval = setInterval(
@@ -477,7 +451,7 @@ const Widget006 = () => {
 
   useEffect(() => {
     const fetchRecentDonors = async () => {
-      if (!updateRecentDonors || isTopDonorViewActive) return;
+      if (!updateRecentDonors || currentNotification) return;
       try {
         const response = await fetch(
           "https://api-v2.chessbase.in/v1/hc/donors"
@@ -493,7 +467,7 @@ const Widget006 = () => {
     fetchRecentDonors();
     const interval = setInterval(fetchRecentDonors, 5000);
     return () => clearInterval(interval);
-  }, [updateRecentDonors, isTopDonorViewActive]);
+  }, [updateRecentDonors, currentNotification]);
 
   const setVisibleToLatestDonor = useCallback(() => {
     setUpdateRecentDonors(true);
@@ -517,13 +491,19 @@ const Widget006 = () => {
     }
 
     if (newDonors.length > 0 && previousDonors.length > 0) {
-      setAlertQueue((prev) => [...prev, ...newDonors]);
+      const newDonorNotifications = newDonors.map((donor) => ({
+        type: "newDonor",
+        duration: NEW_DONOR_DISPLAY_DURATION,
+        data: donor,
+      }));
+      addNotifications(newDonorNotifications);
     }
   }, [
     recentDonors,
-    previousDonors.length,
+    previousDonors,
     updateRecentDonors,
     setVisibleToLatestDonor,
+    addNotifications,
   ]);
 
   const handlePrevDonor = () => {
@@ -556,45 +536,53 @@ const Widget006 = () => {
       amount: 1000,
       id: "test-" + Date.now(),
     };
-    setAlertQueue((prev) => [...prev, testDonor]);
+    addNotification({
+      type: "newDonor",
+      duration: NEW_DONOR_DISPLAY_DURATION,
+      data: testDonor,
+    });
   };
+
+  const isUIBlocked = !!currentNotification;
 
   return (
     <ParentBox>
       <WidgetContainer>
-        {/* The Top Donor Overlay */}
-        <TopDonorOverlay $visible={isTopDonorViewActive}>
-          {currentTopDonor && (
-            <>
+        <NotificationOverlay $visible={isUIBlocked}>
+          {currentNotification?.type === "newDonor" && (
+            <div className="new-donor-content">
+              <p className="title">{currentNotification.data.name}</p>
+              <p className="amount">
+                ₹{numeral(currentNotification.data.amount).format("0,0")}
+              </p>
+              <p className="subtext">
+                Thank you for your contribution towards growing Chess in India!
+              </p>
               <div
-                ref={winnerAnimationContainer}
+                ref={newDonorAnimationContainer}
                 className="animation-container"
               ></div>
+            </div>
+          )}
+          {currentNotification?.type === "topDonor" && (
+            <>
+              <div
+                ref={topDonorAnimationContainer}
+                className="winner-animation-container"
+              ></div>
               <div>
-                <p className="label">{currentTopDonor.label}</p>
+                <p className="label">{currentNotification.data.label}</p>
                 <p className="name">
-                  {currentTopDonor.name.slice(0, nameCharLimit)}
+                  {currentNotification.data.name.slice(0, nameCharLimit)}
                 </p>
                 <p className="amount">
-                  ₹{numeral(currentTopDonor.amount).format("0,0")}
+                  ₹{numeral(currentNotification.data.amount).format("0,0")}
                 </p>
               </div>
             </>
           )}
-        </TopDonorOverlay>
+        </NotificationOverlay>
 
-        <AlertOverlayBox $alert={showAlert}>
-          <p className="title">{alertQueue[0] ? alertQueue[0].name : ""}</p>
-          <p className="amount">{`₹${
-            alertQueue[0] ? alertQueue[0].amount : ""
-          }`}</p>
-          <p className="subtext">
-            Thank you for your contribution towards growing Chess in India!
-          </p>
-          <AnimationDiv ref={animationContainer}></AnimationDiv>
-        </AlertOverlayBox>
-
-        {/* --- Regular Widget View --- */}
         <TopBar>
           <StatsBox>
             <div className="stat-box-child">
@@ -645,20 +633,19 @@ const Widget006 = () => {
       </WidgetContainer>
 
       <ButtonBox>
-        <Button onClick={handleResetDonor} disabled={isTopDonorViewActive}>
+        <Button onClick={handleResetDonor} disabled={isUIBlocked}>
           Reset
         </Button>
         <Button
           onClick={handleNextDonor}
-          disabled={isTopDonorViewActive || visibleDonor.index === 0}
+          disabled={isUIBlocked || visibleDonor.index === 0}
         >
           &#8592;
         </Button>
         <Button
           onClick={handlePrevDonor}
           disabled={
-            isTopDonorViewActive ||
-            visibleDonor.index >= recentDonors.length - 1
+            isUIBlocked || visibleDonor.index >= recentDonors.length - 1
           }
         >
           &#8594;
@@ -667,11 +654,7 @@ const Widget006 = () => {
           {recentDonors.length > 0 ? visibleDonor.index + 1 : 0}/
           {recentDonors.length}
         </VisibleDonorIndex>
-        <Button
-          onClick={handleTestAlert}
-          $isTest={true}
-          disabled={isTopDonorViewActive}
-        >
+        <Button onClick={handleTestAlert} $isTest={true} disabled={isUIBlocked}>
           Test Alert
         </Button>
         <Button onClick={() => setPlayAudio((curr) => !curr)}>
