@@ -257,7 +257,7 @@ const Widget002 = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          'https://api-v2.chessbase.in/v1/hc/widget-stats'
+          "https://api-v2.chessbase.in/v1/hc/widget-stats"
         );
         const data = await response.json();
         const { believersCount, bigBelieversCount } = data.data;
@@ -266,7 +266,7 @@ const Widget002 = () => {
           bigBelievers: bigBelieversCount,
         });
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -277,7 +277,7 @@ const Widget002 = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          'https://api-v2.chessbase.in/v1/hc/donors'
+          "https://api-v2.chessbase.in/v1/hc/donors"
         );
         const data = await response.json();
         if (
@@ -289,7 +289,7 @@ const Widget002 = () => {
           setRecentDonors(data.data.recentDonors);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     };
 
