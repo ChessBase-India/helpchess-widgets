@@ -317,8 +317,8 @@ const useNotificationQueue = (playAudio) => {
   return { currentNotification, addNotification, addNotifications };
 };
 
-const TOP_DONOR_VIEW_INTERVAL = 1200000;
-const TOP_DONOR_DISPLAY_DURATION = 8000;
+const TOP_DONOR_VIEW_INTERVAL = 300000;
+const TOP_DONOR_DISPLAY_DURATION = 4000;
 const NEW_DONOR_DISPLAY_DURATION = 10000;
 const nameCharLimit = 18;
 
