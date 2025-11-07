@@ -6,10 +6,21 @@ import winnerAnimation from "../../../public/winnerAnimation.json";
 import moment from "moment";
 import numeral from "numeral";
 
+const DefaultTheme = {
+  primary: '#ff914d',
+  secondary: '#ffde59',
+  info: '#7bd3ea',
+  background: '#212121',
+};
+
 const ParentBox = styled.div`
   --top-bar-height: 83px;
   --bottom-bar-height: 48px;
-  --color-primary-highlight: #ff914d;
+
+ --color-primary: ${props => props.primary || DefaultTheme.primary};
+ --color-secondary: ${props => props.secondary || DefaultTheme.secondary};
+ --color-info: ${props => props.info || DefaultTheme.info};
+ --color-background: ${props => props.background || DefaultTheme.background};
 
   width: 100vw;
   height: 100vh;
@@ -24,7 +35,7 @@ const ParentBox = styled.div`
 const WidgetContainer = styled.div`
   width: 470px;
   height: calc(var(--top-bar-height) + var(--bottom-bar-height));
-  background-color: #212121;
+  background-color: var(--color-background);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -52,8 +63,8 @@ const SyncStatus = styled.p`
 const VisibleDonorIndex = styled.p`
   padding: 0.5rem;
   border-radius: 10px;
-  background-color: #7bd3ea;
-  color: #212121;
+  background-color: var(--color-info);
+  color: var(--color-background);
   cursor: pointer;
   font-weight: bold;
   letter-spacing: 1.1px;
@@ -78,7 +89,7 @@ const BottomBar = styled.div`
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  background: linear-gradient(to right, #ffde59, #ff914d);
+  background: linear-gradient(to right, var(--color-secondary), var(--color-primary));
   font-size: 1.3em;
   font-weight: bold;
   letter-spacing: 0;
@@ -102,7 +113,7 @@ const StatsBox = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: #0cc0df;
+  color: var(--color-info);
   gap: 2rem;
   font-size: 1rem;
   letter-spacing: 0;
@@ -148,7 +159,7 @@ const StatNumbers = styled.p`
   font-weight: bold;
   font-size: 1.6rem;
   letter-spacing: 0.7px;
-  color: var(--color-primary-highlight);
+  color: var(--color-primary);
 `;
 
 const Button = styled.button`
@@ -212,7 +223,7 @@ const NotificationOverlay = styled.div`
     font-size: 1.4rem;
     font-weight: bold;
     letter-spacing: 1.5px;
-    color: var(--color-primary-highlight);
+    color: var(--color-primary);
     text-transform: uppercase;
     text-shadow: 2px 4px rgba(0, 0, 0, 0.5);
   }
@@ -221,7 +232,7 @@ const NotificationOverlay = styled.div`
     font-size: 1.2rem;
     font-weight: 800;
     letter-spacing: 1.5px;
-    color: var(--color-primary-highlight);
+    color: var(--color-primary);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
 
@@ -341,6 +352,34 @@ const Widget006 = () => {
 
   const newDonorAnimationContainer = useRef(null);
   const topDonorAnimationContainer = useRef(null);
+
+  const [themeColors, setThemeColors] = useState(DefaultTheme);
+
+  // Allow overriding theme colors via query params: ?primary=fff000&secondary=ff00ff&info=00ffff&background=000000
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+
+    for (const [param, value] of params.entries()) {
+      const key = param.toLowerCase();
+      if (!(key in themeColors)) {
+        continue;
+      }
+
+      let color = value.trim();
+      if (!color.startsWith("#")) color = `#${color}`;
+      // accept 3 or 6 hex digits (case-insensitive)
+      if (/^#([0-9A-F]{3}|[0-9A-F]{6})$/i.test(color)) {
+        setThemeColors(prev => ({
+          ...prev,
+          [key]: color
+        }));
+      } else {
+        // invalid color - ignore but warn
+        console.warn(`Ignored invalid color for query param "${param}":`, value);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (
@@ -546,7 +585,7 @@ const Widget006 = () => {
   const isUIBlocked = !!currentNotification;
 
   return (
-    <ParentBox>
+    <ParentBox {...themeColors}>
       <WidgetContainer>
         <NotificationOverlay $visible={isUIBlocked}>
           {currentNotification?.type === "newDonor" && (
