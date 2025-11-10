@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import lottie from "lottie-web";
 import animationData from "../../../public/animation2.json";
 import winnerAnimation from "../../../public/winnerAnimation.json";
