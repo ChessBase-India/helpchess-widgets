@@ -289,14 +289,34 @@ const NotificationOverlay = styled.div`
   }
 `;
 
+// Simple debounce function
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
 const ColorPicker = ({color, setColor, label}) => {
+  // Create debounced version of setColor
+  const debouncedSetColor = useCallback(
+    debounce((value) => setColor(value), 200),
+    [setColor]
+  );
+
   return (
     <>
       <label htmlFor={label}>{label}</label>
-      <input id={label} type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+      <input 
+        id={label} 
+        type="color" 
+        value={color} 
+        onChange={(e) => debouncedSetColor(e.target.value)} 
+      />
     </>
   )
-}
+};
 
 // --- CUSTOM HOOK for managing notification queue (Corrected Logic) ---
 const useNotificationQueue = (playAudio) => {
