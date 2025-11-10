@@ -27,7 +27,7 @@ const ParentBox = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 5rem;
+  gap: 3.5rem;
   align-items: center;
   background-color: #00b140;
 `;
@@ -185,6 +185,17 @@ const ButtonBox = styled.div`
   gap: 0.5rem;
 `;
 
+const ColorPickerBox = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  height: 1rem;
+
+  > *:nth-child(even) {
+    margin-right: 1rem;
+  }
+`;
+
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
@@ -277,6 +288,15 @@ const NotificationOverlay = styled.div`
     max-width: 30%;
   }
 `;
+
+const ColorPicker = ({color, setColor, label}) => {
+  return (
+    <>
+      <label htmlFor={label}>{label}</label>
+      <input id={label} type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+    </>
+  )
+}
 
 // --- CUSTOM HOOK for managing notification queue (Corrected Logic) ---
 const useNotificationQueue = (playAudio) => {
@@ -380,6 +400,32 @@ const Widget006 = () => {
       }
     }
   }, []);
+
+  // When themeColors change, reflect them in the browser URL (without adding history entries)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    try {
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+
+      // Only sync these keys
+      const keys = ["primary", "secondary", "info", "background"];
+      keys.forEach((k) => {
+        const val = themeColors[k];
+        if (typeof val === "string" && val.length > 0) {
+          params.set(k, val.replace(/^#/, ""));
+        }
+      });
+
+      // Replace the current history entry so navigation isn't polluted
+      const newSearch = params.toString();
+      const newUrl = url.pathname + (newSearch ? `?${newSearch}` : "") + url.hash;
+      window.history.replaceState(null, "", newUrl);
+    } catch (err) {
+      console.warn("Failed to update theme query params:", err);
+    }
+  }, [themeColors]);
 
   useEffect(() => {
     if (
@@ -670,6 +716,29 @@ const Widget006 = () => {
           </p>
         </BottomBar>
       </WidgetContainer>
+
+      <ColorPickerBox>
+        <ColorPicker
+          color={themeColors.primary}
+          setColor={(color) => {setThemeColors(prev => ({...prev, primary: color}))}}
+          label={"Primary"}
+        />
+        <ColorPicker
+          color={themeColors.secondary}
+          setColor={(color) => {setThemeColors(prev => ({...prev, secondary: color}))}}
+          label={"Secondary"}
+        />
+        <ColorPicker
+          color={themeColors.info}
+          setColor={(color) => {setThemeColors(prev => ({...prev, info: color}))}}
+          label={"Info"}
+        />
+        <ColorPicker
+          color={themeColors.background}
+          setColor={(color) => {setThemeColors(prev => ({...prev, background: color}))}}
+          label={"Background"}
+        />
+      </ColorPickerBox>
 
       <ButtonBox>
         <Button onClick={handleResetDonor} disabled={isUIBlocked}>
