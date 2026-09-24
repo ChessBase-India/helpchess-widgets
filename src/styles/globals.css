@@ -81,6 +81,8 @@
 
 button {
   all: unset;
+  display: inline-block;
+  line-height: 1.2;
 }
 
 button:focus {
@@ -89,8 +91,15 @@ button:focus {
 
 html,
 body {
-  max-width: 100vw;
+  max-width: 100%;
   overflow-x: hidden;
+}
+
+.app-root {
+  font-family: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.25;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
