@@ -22,8 +22,9 @@ const ParentBox = styled.div`
  --color-info: ${props => props.info || DefaultTheme.info};
  --color-background: ${props => props.background || DefaultTheme.background};
 
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem 1rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -35,6 +36,7 @@ const ParentBox = styled.div`
 const WidgetContainer = styled.div`
   width: 470px;
   height: calc(var(--top-bar-height) + var(--bottom-bar-height));
+  flex: none;
   background-color: var(--color-background);
   position: relative;
   overflow: hidden;
@@ -72,7 +74,8 @@ const VisibleDonorIndex = styled.p`
 
 const TopBar = styled.div`
   width: 100%;
-  height: fit-content;
+  height: var(--top-bar-height);
+  flex: none;
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -84,18 +87,27 @@ const TopBar = styled.div`
 const BottomBar = styled.div`
   width: 100%;
   height: var(--bottom-bar-height);
+  flex: none;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   overflow: hidden;
   background: linear-gradient(to right, var(--color-secondary), var(--color-primary));
-  font-size: 1.3em;
+  font-size: 1.3rem;
   font-weight: bold;
   letter-spacing: 0;
   color: rgb(35, 34, 19);
   text-align: center;
   text-transform: uppercase;
+
+  > p {
+    max-width: 100%;
+    padding: 0 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   .time {
     font-size: 1rem;
@@ -108,7 +120,8 @@ const BottomBar = styled.div`
 
 const StatsBox = styled.div`
   height: 100%;
-  width: 100%;
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -128,6 +141,10 @@ const StatsBox = styled.div`
 
 const WebsiteLogo = styled.img`
   min-width: 40%;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  object-fit: contain;
   margin-left: -4px;
   opacity: ${({ $visible }) => ($visible ? 1 : 0)};
   transform: ${({ $visible }) =>
@@ -164,6 +181,8 @@ const StatNumbers = styled.p`
 
 const Button = styled.button`
   padding: 0.5rem;
+  min-width: 2.75rem;
+  text-align: center;
   border-radius: 10px;
   background-color: ${({ $isTest }) => ($isTest ? "#dc2626" : "#212121")};
   color: ${({ $isTest }) => ($isTest ? "#ffffff" : "#ebc49f")};
@@ -189,10 +208,32 @@ const ColorPickerBox = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: center;
-  height: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 
   > *:nth-child(even) {
     margin-right: 1rem;
+  }
+
+  input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 2.5rem;
+    height: 1.75rem;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.35);
+    border-radius: 4px;
+    background: none;
+    cursor: pointer;
+  }
+
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 3px;
   }
 `;
 
@@ -698,7 +739,7 @@ const Widget006 = () => {
           <div
             style={{
               position: "relative",
-              width: "40%",
+              flex: "0 0 40%",
               height: "100%",
               display: "flex",
               alignItems: "center",
